@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">@color/startColor1</color>
+    <color name="purple_500">@color/startColor1</color>
+    <color name="purple_700">#030EDA</color>
+    <color name="teal_200">#030EDA</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+
+    <color name="startColor">#12c2e9</color>
+    <color name="midColor">#c471ed</color>
+    <color name="endColor">#f64f59</color>
+    <color name="startColor1">#000000</color>
+
+
+    <color name="midColor1"> #859398</color>
+
+    <color name="endColor1">#434343</color>
+
+</resources>
