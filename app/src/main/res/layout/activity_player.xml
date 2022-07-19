@@ -136,23 +136,31 @@
                 android:layout_toLeftOf="@+id/btnPrevious"
                 android:background="@drawable/ic_fast_rewind" />
 
-            <TextView
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="75dp"
-                android:layout_marginEnd="7dp"
-                android:layout_marginBottom="118dp"
-                android:gravity="center"
-                android:paddingTop="10dp"
-                android:text=" © copyright-2022-SIDHU"
-                android:textSize="14dp"
-                android:textStyle="bold" />
+<!--            <TextView-->
+<!--                android:layout_width="200dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:layout_alignParentTop="true"-->
+<!--                android:layout_alignParentEnd="true"-->
+<!--                android:layout_alignParentBottom="true"-->
+<!--                android:layout_marginStart="12dp"-->
+<!--                android:layout_marginTop="75dp"-->
+<!--                android:layout_marginEnd="7dp"-->
+<!--                android:layout_marginBottom="118dp"-->
+<!--                android:gravity="center"-->
+<!--                android:paddingTop="10dp"-->
+<!--                android:text=" © copyright-2022-SIDHU"-->
+<!--                android:textSize="14dp"-->
+<!--                android:textStyle="bold" />-->
 
+            <com.chibde.visualizer.BarVisualizer
+                android:id="@+id/wave"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_below="@+id/btnPlay"
+                android:layout_alignParentBottom="true"
+
+                />
 
         </RelativeLayout>
 

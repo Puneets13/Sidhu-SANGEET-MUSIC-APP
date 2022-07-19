@@ -1,7 +1,9 @@
 package com.example.sidhu_sangeet;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
@@ -24,6 +27,8 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.chibde.visualizer.BarVisualizer;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +36,15 @@ import java.util.Locale;
 
 public class PlayerActivity extends AppCompatActivity {
 
+
+
     Button btnPlay, btnNext, btnPrevious, btnfastForward, btnFastRewind;
     TextView txtSongName, txtSongStart, txtSongEnd;
     SeekBar seekMusicbar;
-    //    BarVisualiser barVisualiser;
+    BarVisualizer barVisualizer;
     List<Track> track;
+
+    String Play_on = "on";
 
     ImageView imageView;
     String songname;
@@ -47,6 +56,12 @@ public class PlayerActivity extends AppCompatActivity {
 
     Thread updateSeekBar;
 
+//    to dismiss the functionality of back button
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +72,7 @@ public class PlayerActivity extends AppCompatActivity {
         btnNext = findViewById(R.id.btnNext);
         btnfastForward = findViewById(R.id.btnFastForward);
         btnFastRewind = findViewById(R.id.btnFastBackward);
+        barVisualizer = findViewById(R.id.wave);
 
         txtSongName = findViewById(R.id.txtSong);
         txtSongStart = findViewById(R.id.txtSongStart);
@@ -80,9 +96,19 @@ public class PlayerActivity extends AppCompatActivity {
         Uri uri = Uri.parse(mysongs.get(posittion).toString());
         songname = mysongs.get(posittion).getName();
         txtSongName.setText(songname);
+        try {
+            mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
+            mediaPlayer.start();
+        } catch (NullPointerException e) {
 
-        mediaPlayer = MediaPlayer.create(getApplicationContext(), uri);
-        mediaPlayer.start();
+        }
+
+
+//        for backButton
+        ActionBar actionBar = getSupportActionBar();
+
+        // showing the back button in action bar
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
 
 //        to update the sekbar
@@ -90,7 +116,7 @@ public class PlayerActivity extends AppCompatActivity {
         updateSeekBar = new Thread() {
             @Override
             public void run() {
-                int totalduration = mediaPlayer.getDuration();
+                int totalduration = 100000000;
 
                 int currentposition = 0;
                 while (currentposition < totalduration) {
@@ -102,21 +128,13 @@ public class PlayerActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-                while (currentposition == totalduration) {
-                    try {
-                        sleep(200);
-//                        currentposition = mediaPlayer.getCurrentPosition();
-                        seekMusicbar.setProgress(0);
-                    } catch (InterruptedException | IllegalStateException e) {
-                        e.printStackTrace();
-                    }
-                }
+
             }
         };
 
         seekMusicbar.setMax(mediaPlayer.getDuration());
         updateSeekBar.start();
-        seekMusicbar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.purple_700), PorterDuff.Mode.MULTIPLY);
+        seekMusicbar.getProgressDrawable().setColorFilter(getResources().getColor(R.color.black), PorterDuff.Mode.MULTIPLY);
         seekMusicbar.getThumb().setColorFilter(getResources().getColor(R.color.purple_700), PorterDuff.Mode.SRC_IN);
 
 
@@ -153,12 +171,13 @@ public class PlayerActivity extends AppCompatActivity {
                 handler.postDelayed(this, delay);
             }
         }, delay);
+//
+//        SongNamePass = songname;
 
 
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createNotification.CreateNotification(PlayerActivity.this, track.get(posittion), R.drawable.ic_pause, 1, track.size() - 1);
 
                 if (mediaPlayer.isPlaying()) {
                     btnPlay.setBackgroundResource(R.drawable.ic_play_);
@@ -179,8 +198,17 @@ public class PlayerActivity extends AppCompatActivity {
                     imageView.startAnimation(moveAnim);
 
                 }
+                createNotification.CreateNotification(PlayerActivity.this, track.get(posittion), R.drawable.ic_pause, 1, track.size() - 1);
+
             }
         });
+
+        // set custom color to the line.
+        barVisualizer.setColor(ContextCompat.getColor(this, R.color.black));
+// define custom number of bars you want in the visualizer between (10 - 256).
+        barVisualizer.setDensity(70);
+// Set your media player to the visualizer.
+        barVisualizer.setPlayer(mediaPlayer.getAudioSessionId());
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -194,21 +222,40 @@ public class PlayerActivity extends AppCompatActivity {
         btnNext.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createNotification.CreateNotification(PlayerActivity.this, track.get(posittion+1), R.drawable.ic_pause, 1, track.size() - 1);
 
                 mediaPlayer.stop();
                 mediaPlayer.release();
                 btnPlay.setBackgroundResource(R.drawable.ic_pause);
-                posittion = ((posittion + 1)%mysongs.size());
+                posittion = ((posittion + 1) % (mysongs.size()));
                 Uri uri = Uri.parse(mysongs.get(posittion).toString());
                 mediaPlayer = mediaPlayer.create(getApplicationContext(), uri);
                 songname = mysongs.get(posittion).getName();
                 txtSongName.setText(songname);
-                String endtime = createTime(mediaPlayer.getDuration());
-                txtSongEnd.setText(endtime);
-                mediaPlayer.start();
 
                 startAnimation(imageView, 360f);
+
+                mediaPlayer.start();
+                seekMusicbar.setMax(mediaPlayer.getDuration());
+                String endtime = createTime(mediaPlayer.getDuration());
+                txtSongEnd.setText(endtime);
+
+                createNotification.CreateNotification(PlayerActivity.this, track.get(posittion ), R.drawable.ic_pause, 1, track.size() - 1);
+                barVisualizer.release();
+                // set custom color to the line.
+                barVisualizer.setColor(ContextCompat.getColor(getApplicationContext(), R.color.black));
+// define custom number of bars you want in the visualizer between (10 - 256).
+                barVisualizer.setDensity(70);
+// Set your media player to the visualizer.
+                barVisualizer.setPlayer(mediaPlayer.getAudioSessionId());
+
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        btnNext.performClick();
+                        seekMusicbar.setProgress(0);
+                    }
+                });
+
 
             }
         });
@@ -216,11 +263,10 @@ public class PlayerActivity extends AppCompatActivity {
         btnPrevious.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createNotification.CreateNotification(PlayerActivity.this, track.get(posittion-1), R.drawable.ic_pause, 1, track.size() - 1);
                 btnPlay.setBackgroundResource(R.drawable.ic_pause);
                 mediaPlayer.stop();
                 mediaPlayer.release();
-                posittion = ((posittion-1)<0)?(mysongs.size()-1):posittion-1;
+                posittion = ((posittion - 1) < 0) ? (mysongs.size() - 1) : posittion - 1;
                 Uri uri = Uri.parse(mysongs.get(posittion).toString());
                 mediaPlayer = mediaPlayer.create(getApplicationContext(), uri);
                 songname = mysongs.get(posittion).getName();
@@ -228,7 +274,26 @@ public class PlayerActivity extends AppCompatActivity {
                 String endtime = createTime(mediaPlayer.getDuration());
                 txtSongEnd.setText(endtime);
                 mediaPlayer.start();
+                seekMusicbar.setMax(mediaPlayer.getDuration());
                 startAnimation(imageView, -360f);
+                createNotification.CreateNotification(PlayerActivity.this, track.get(posittion), R.drawable.ic_pause, 1, track.size() - 1);
+
+                barVisualizer.release();
+                // set custom color to the line.
+                barVisualizer.setColor(ContextCompat.getColor(getApplicationContext(), R.color.black));
+// define custom number of bars you want in the visualizer between (10 - 256).
+                barVisualizer.setDensity(70);
+// Set your media player to the visualizer.
+                barVisualizer.setPlayer(mediaPlayer.getAudioSessionId());
+
+                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        btnNext.performClick();
+                        seekMusicbar.setProgress(0);
+//                 updateSeekBar.start();
+                    }
+                });
             }
         });
 
@@ -252,7 +317,12 @@ public class PlayerActivity extends AppCompatActivity {
 
         });
 
+
     }
+
+
+
+
 
     //method for making animation
     public void startAnimation(View view, Float degree) {
@@ -296,8 +366,11 @@ public class PlayerActivity extends AppCompatActivity {
             for (File singleFile : files) {
                 if (singleFile.isDirectory() && !singleFile.isHidden()) {
                     arrayList.addAll(findSong(singleFile));
+
+//                    deleteFile(singleFile.getAbsolutePath());
+
                 } else {
-                    if (singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav")) {
+                    if ((singleFile.getName().endsWith(".mp3") || singleFile.getName().endsWith(".wav"))) {
                         arrayList.add(singleFile);
                     }
                 }
@@ -307,5 +380,27 @@ public class PlayerActivity extends AppCompatActivity {
         return arrayList;
     }
 
+    // this event will enable the back
+    // function to the button on press
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Intent intent = new Intent(PlayerActivity.this,MainActivity.class);
+                intent.putExtra("songname",txtSongName.getText().toString());
+                intent.putExtra("Play_on",Play_on);
+
+                startActivity(intent);
+                this.finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }
+
+
+
+
+
 

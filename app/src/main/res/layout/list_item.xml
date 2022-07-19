@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginEnd="8dp"
@@ -37,10 +38,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="7dp"
-            android:layout_marginEnd="6dp"
+            android:layout_marginEnd="20dp"
             android:layout_toEndOf="@+id/songimage"
             android:ellipsize="marquee"
-            android:marqueeRepeatLimit="marquee_forever"
+            android:marqueeRepeatLimit="@integer/material_motion_duration_long_1"
             android:padding="6dp"
             android:scrollHorizontally="true"
 
